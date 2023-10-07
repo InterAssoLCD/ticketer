@@ -1,17 +1,17 @@
-import sqlite3
+import psycopg2
 from uuid import uuid4
 
 
 class Connection:
-    def __init__(self, path: str):
-        self.path = path
+    def __init__(self):
         self.connector = self.init()
 
     def init(self):
-        connect = sqlite3.connect(self.path)
+        connect = psycopg2.connect("dbname=pi user=pi password=pi)
+        cur = connect.cursor()
         with open("app/db/default.sql", "r", encoding="UTF-8") as sql:
-            connect.execute(sql.read())
-        return connect
+            cur.execute(sql.read())
+        return cur
 
     def close(self):
         self.connector.close()
@@ -25,7 +25,7 @@ class Connection:
 
 class TicketSession(Connection):
     def __init__(self, session_id: str):
-        Connection.__init__(self, f"app/db/{session_id}.db")
+        Connection.__init__(self)
 
     def get_ticket(self, ticket_uuid: str) -> tuple[str, str, str, str, int] | None:
         ticket = list(self.execute("select * from tickets where uuid=?", ticket_uuid))
